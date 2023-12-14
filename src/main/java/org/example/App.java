@@ -11,11 +11,15 @@ public class App {
     }
 
     public RowContainer loadDataClassic() {
+        final RowContainer rowContainer = new ClassicRowContainer();
+
+
         // TODO
         return null;
     }
 
     public RowContainer loadDataOptimized() {
+        final RowContainer rowContainer = new OptimizedRowContainer();
         // TODO
         return null;
     }
