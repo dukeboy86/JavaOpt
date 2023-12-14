@@ -10,7 +10,7 @@ public interface RowContainer {
 
     Row getById(long id);
 
-    Collection<Row> getByTopic(long id);
+    Collection<Row> getByTopic(long topic);
 
     Collection<Row> getByTitle(String title);
 
