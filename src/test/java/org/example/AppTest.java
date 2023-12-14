@@ -1,72 +1,105 @@
-package org.junit;
+package org.example;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import static org.junit.Assert.*;
+import static org.junit.Assert.assertTrue;
 
-/**
- * <p>The <code>Test</code> annotation tells JUnit that the <code>public void</code> method
- * to which it is attached can be run as a test case. To run the method,
- * JUnit first constructs a fresh instance of the class then invokes the
- * annotated method. Any exceptions thrown by the test will be reported
- * by JUnit as a failure. If no exceptions are thrown, the test is assumed
- * to have succeeded.</p>
- *
- * <p>A simple test looks like this:
- * <pre>
- * public class Example {
- *    <b>&#064;Test</b>
- *    public void method() {
- *       org.junit.Assert.assertTrue( new ArrayList().isEmpty() );
- *    }
- * }
- * </pre>
- * </p>
- *
- * <p>The <code>Test</code> annotation supports two optional parameters.
- * The first, <code>expected</code>, declares that a test method should throw
- * an exception. If it doesn't throw an exception or if it throws a different exception
- * than the one declared, the test fails. For example, the following test succeeds:
- * <pre>
- *    &#064;Test(<b>expected=IndexOutOfBoundsException.class</b>) public void outOfBounds() {
- *       new ArrayList&lt;Object&gt;().get(1);
- *    }
- * </pre></p>
- *
- * <p>The second optional parameter, <code>timeout</code>, causes a test to fail if it takes
- * longer than a specified amount of clock time (measured in milliseconds). The following test fails:
- * <pre>
- *    &#064;Test(<b>timeout=100</b>) public void infinity() {
- *       while(true);
- *    }
- * </pre></p>
- *
- * @since 4.0
- */
-@Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.METHOD})
-public @interface Test {
+import org.junit.Assert;
+import org.junit.Test;
 
-    /**
-     * Default empty exception
-     */
-    static class None extends Throwable {
-        private static final long serialVersionUID = 1L;
+import java.util.Collection;
+import java.util.function.Predicate;
 
-        private None() {
-        }
+public class AppTest 
+{
+    @Test
+    public void whenOneIsAdded_thenSizeEquals1Classic(){
+        Row added = new Row(1, 1, "", "", "");
+        RowContainer containerToTest = new App().loadDataClassic();
+
+        final long expectedSize = 1;
+    
+        containerToTest.add(added);
+        assertEquals(expectedSize, containerToTest.size());
+    }
+    @Test
+    public void whenOneIsAdded_thenSizeEquals1Optimized(){
+        Row added = new Row(1, 1, "", "", "");
+        RowContainer containerToTest = new App().loadDataOptimized();
+
+        final long expectedSize = 1;
+
+        containerToTest.add(added);
+        assertEquals(expectedSize, containerToTest.size());
     }
 
-    /**
-     * Optionally specify <code>expected</code>, a Throwable, to cause a test method to succeed iff
-     * an exception of the specified class is thrown by the method.
-     */
-    Class<? extends Throwable> expected() default None.class;
+    @Test
+    public void whenCheckingById_getCorrectRow() {
+        RowContainer containerToTest = new App().loadDataClassic();
+        final Row rowToExpect = new Row(1, 1, "", "", "");
+        containerToTest.add((new Row(1, 1, "", "", "")));
+        containerToTest.add((new Row(3, 3, "", "", "")));
+        containerToTest.add(rowToExpect);
+        final Row obtainedRow = containerToTest.getById(1);
 
-    /**
-     * Optionally specify <code>timeout</code> in milliseconds to cause a test method to fail if it
-     * takes longer than that number of milliseconds.
-     */
-    long timeout() default 0L;
+        assertEquals(obtainedRow, rowToExpect);
+    }
+
+    @Test
+    public void whenCheckingById_getCorrectRowOptimized() {
+        RowContainer containerToTest = new App().loadDataOptimized();
+        final Row rowToExpect = new Row(1, 1, "", "", "");
+        containerToTest.add((new Row(1, 1, "", "", "")));
+        containerToTest.add((new Row(3, 3, "", "", "")));
+        containerToTest.add(rowToExpect);
+        final Row obtainedRow = containerToTest.getById(1);
+        assertEquals(obtainedRow, rowToExpect);
+    }
+
+    @Test
+    public void whenSearchForKeywordInCollectionWithThemAtIndex0and2_thenFoundIndicesMatch_Classic(){
+
+        RowContainer wholeContainer = new App().loadDataClassic();
+        final int TOPIC_MOVIE = 0;
+        final int TOPIC_NATURE = 1;
+        wholeContainer.add((new Row(2, TOPIC_MOVIE, "Favorite Movie?", "What's your favorite movie?", "Home alone")));
+        wholeContainer.add((new Row(1, TOPIC_NATURE, "What trees eat animals?", "I have heard of some animals being a risk for children due to their behaviour. Which ones are there really?", "None")));
+        wholeContainer.add((new Row(3, TOPIC_MOVIE, "Worst!?", "What's the worst series ever produced?", "Teletubbies")));
+
+        Collection<Long> found = wholeContainer.findIdsByKeyword("film");
+
+        assertTrue(found.size() == 2 && found.contains(3) );
+    }
+    @Test
+    public void whenSearchForKeywordInCollectionWithThemAtIndex0and2_thenFoundIndicesMatch_Optimized(){
+
+        RowContainer wholeContainer = new App().loadDataOptimized();
+        final int TOPIC_MOVIE = 0;
+        final int TOPIC_NATURE = 1;
+        wholeContainer.add((new Row(2, TOPIC_MOVIE, "Favorite Movie?", "What's your favorite movie?", "Home alone")));
+        wholeContainer.add((new Row(1, TOPIC_NATURE, "What trees eat animals?", "I have heard of some animals being a risk for children due to their behaviour. Which ones are there really?", "None")));
+        wholeContainer.add((new Row(3, TOPIC_MOVIE, "Worst!?", "What's the worst series ever produced?", "Teletubbies")));
+
+        Collection<Long> found = wholeContainer.findIdsByKeyword("film");
+        assertTrue(found.size() == 2 && found.contains(3) );
+    }
+
+
+    @Test
+    public void whenSearchForExistingTitleInCollection_thenSuccess_Classic() {
+        RowContainer wholeContainer = new App().loadDataClassic();
+        wholeContainer.add(new Row(1, 1, "myTitle", "", ""));
+        wholeContainer.add(new Row(2, 1, "myOtherTitle", "", ""));
+        Collection<Row> found = wholeContainer.getByTitle("myTitle");
+        assertTrue(found.size() == 1);
+    }
+
+    @Test
+    public void whenSearchForExistingTitleInCollection_thenSuccess_Optimized() {
+        RowContainer wholeContainer = new App().loadDataOptimized();
+        wholeContainer.add(new Row(1, 1, "myTitle", "", ""));
+        wholeContainer.add(new Row(2, 1, "myOtherTitle", "", ""));
+        Collection<Row> found = wholeContainer.getByTitle("myTitle");
+        assertTrue(found.size() == 1);
+    }
+
 }
