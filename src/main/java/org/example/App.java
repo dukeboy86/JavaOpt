@@ -29,14 +29,17 @@ public class App {
     private static void getData(RowContainer rowContainer, final Path resource) {
         try {
             final List<String[]> dataStringArrays = CSVUtils.readAllLines(resource);
-            for (final String[] dataStringArray : dataStringArrays) {
-                final Long id = Long.valueOf(dataStringArray[0]);
-                final Long topic = Long.valueOf(dataStringArray[1]);
-                final String title = dataStringArray[2];
-                final String content = dataStringArray[3];
-                final String answer = dataStringArray[4];
-                final Row row = new Row(id, topic, title, content, answer);
-                rowContainer.add(row);
+            if (dataStringArrays.size() > 1) {
+                dataStringArrays.remove(0);
+                for (final String[] dataStringArray : dataStringArrays) {
+                    final Long id = Long.valueOf(dataStringArray[0]);
+                    final Long topic = Long.valueOf(dataStringArray[1]);
+                    final String title = dataStringArray[2];
+                    final String content = dataStringArray[3];
+                    final String answer = dataStringArray[4];
+                    final Row row = new Row(id, topic, title, content, answer);
+                    rowContainer.add(row);
+                }
             }
         } catch (Exception e) {
             throw new RuntimeException(e);
