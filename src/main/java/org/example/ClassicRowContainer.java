@@ -1,15 +1,16 @@
 package org.example;
 
-import java.util.Collection;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 
 public class ClassicRowContainer implements RowContainer {
 
     private final Map<Long, Row> map;
 
+    private final Map<Long, List<Row>> idxTopic;
+
     public ClassicRowContainer() {
         this.map = new TreeMap<>();
+        this.idxTopic = new TreeMap<>();
     }
 
     @Override
@@ -20,6 +21,7 @@ public class ClassicRowContainer implements RowContainer {
     @Override
     public void add(Row row) {
         map.put(row.id(), row);
+        idxTopic.computeIfAbsent(row.topic(), r -> new ArrayList<>()).add(row);
     }
 
     @Override
@@ -29,9 +31,11 @@ public class ClassicRowContainer implements RowContainer {
 
     @Override
     public Collection<Row> getByTopic(long topic) {
-        return map.values().parallelStream()
-                .filter(row -> row.topic() == topic)
-                .toList();
+        return idxTopic.get(topic);
+
+//        return map.values().parallelStream()
+//                .filter(row -> row.topic() == topic)
+//                .toList();
     }
 
     @Override

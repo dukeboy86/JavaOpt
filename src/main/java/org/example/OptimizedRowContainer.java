@@ -1,16 +1,22 @@
 package org.example;
 
+import it.unimi.dsi.fastutil.longs.Long2ObjectAVLTreeMap;
 import it.unimi.dsi.fastutil.longs.Long2ReferenceAVLTreeMap;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 public class OptimizedRowContainer implements RowContainer {
 
     private final Long2ReferenceAVLTreeMap<Row> map;
 
+    private final Long2ReferenceAVLTreeMap<List<Row>> idxTopic;
+
     public OptimizedRowContainer() {
         map = new Long2ReferenceAVLTreeMap<>();
+        idxTopic = new Long2ReferenceAVLTreeMap<>();
     }
 
     @Override
@@ -21,6 +27,7 @@ public class OptimizedRowContainer implements RowContainer {
     @Override
     public void add(Row row) {
         map.put(row.id(), row);
+        idxTopic.computeIfAbsent(row.topic(), r -> new ArrayList<>()).add(row);
     }
 
     @Override
@@ -30,9 +37,11 @@ public class OptimizedRowContainer implements RowContainer {
 
     @Override
     public Collection<Row> getByTopic(long topic) {
-        return map.values().parallelStream()
-                .filter(row -> row.topic() == topic)
-                .toList();
+        return idxTopic.get(topic);
+
+//        return map.values().parallelStream()
+//                .filter(row -> row.topic() == topic)
+//                .toList();
     }
 
     @Override
@@ -44,9 +53,9 @@ public class OptimizedRowContainer implements RowContainer {
 
     @Override
     public Collection<Long> findIdsByKeyword(String keyword) {
-        return map.entrySet().parallelStream()
-                .filter(entry -> entry.getValue().questionContent().contains(keyword))
-                .map(Map.Entry::getKey)
+        return map.values().parallelStream()
+                .filter(row -> row.questionContent().contains(keyword))
+                .map(Row::id)
                 .toList();
     }
 }

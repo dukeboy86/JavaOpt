@@ -1,11 +1,3 @@
 
-g
-java:S1124"EReorder the modifiers to comply with the Java Language Specification.(Ô¯Ù¨úÿÿÿÿ8Å²ÿÆÆ1
-T
-java:S1135"2Complete the task associated to this TODO comment.(Ô¯Ù¨úÿÿÿÿ8Æ²ÿÆÆ1
-O
-java:S1135"2Complete the task associated to this TODO comment.(…ïœ†8È²ÿÆÆ1
-O
-java:S1135"2Complete the task associated to this TODO comment.(…ïœ†8È²ÿÆÆ1
-N
-java:S1068",Remove this unused "resource" private field.(Ô¯Ù¨úÿÿÿÿ8È²ÿÆÆ1
+
+java:S4144="dUpdate this method so that its implementation is not identical to "loadDataDatabaseDisk" on line 54.(ÖŸ„¯8¿ÍÌèÆ1

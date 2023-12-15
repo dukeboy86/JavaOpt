@@ -8,19 +8,58 @@ import java.io.IOException;
 
 public class App {
 
+    private final PersistanceOption option;
+
     public static void main(String[] args) {
-        System.out.println("Hello World!");
+        System.out.println("Hello world!");
     }
 
-    public RowContainer loadDataClassic() {
+    public App(PersistanceOption option) {
+        this.option = option;
+        Persistence.init(option).clear();
+    }
+
+    public RowContainer loadData() {
+        switch (option) {
+            case CLASSIC_COLLECTION -> {
+                return loadDataClassic();
+            }
+            case OPTIMIZED_COLLECTION -> {
+                return loadDataOptimized();
+            }
+            case DATABASE_DISK -> {
+                return loadDataDatabaseDisk();
+            }
+            case DATABASE_MEMORY -> {
+                return loadDataDatabaseMemory();
+            }
+            default -> throw new IllegalArgumentException();
+        }
+    }
+
+    private RowContainer loadDataClassic() {
         final RowContainer container = new ClassicRowContainer();
         load(container);
 
         return container;
     }
 
-    public RowContainer loadDataOptimized() {
+    private RowContainer loadDataOptimized() {
         final RowContainer container = new OptimizedRowContainer();
+        load(container);
+
+        return container;
+    }
+
+    private RowContainer loadDataDatabaseDisk() {
+        final RowContainer container = new DatabaseRowContainer();
+        load(container);
+
+        return container;
+    }
+
+    private RowContainer loadDataDatabaseMemory() {
+        final RowContainer container = new DatabaseRowContainer();
         load(container);
 
         return container;
